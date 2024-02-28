@@ -105,7 +105,7 @@ WHERE RIGHT([Event distance length], 1) != 'h';
 DELETE FROM [ultraDB].[dbo].[TWO_CENTURIES_OF_UM_RACES]
 WHERE RIGHT([Event distance length], 1) = 'h';
 
---below we will select all rows with 'Athlete age category" with an actual value. This way we will remove all rows with race distance measured in hours
+--below we will select all rows with 'Athlete age category" with an actual value. This way we will remove all rows without an athlete age since they are useless for this project
 SELECT *
 FROM [ultraDB].[dbo].[TWO_CENTURIES_OF_UM_RACES]
 WHERE [Athlete age category] = '';
