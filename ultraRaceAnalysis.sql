@@ -15,8 +15,8 @@
 -- My rough outline for the data cleaning portion will be to
 -- A) Reformat the race dates. Currently it is in DD.MM.YYYY form I would like Day, Month and Year to be in its own column.
 -- B) Get rid of uneeded columns. For this analysis I am not interested in Athlete Club, Athelete Country, Athlete ID, Athlete gender nor am I interested in Athlete year of birth since Athlete age is already a column. These columns will be removed to get rid of unwanted data.
--- C) Parse through 'Event distance length' and only keep races that are a set distance (either km or M). All races that are based on time eg.12h races, 6h races and 24 hr, races will not be included. Only races with a set distance.
-
+-- C) Parse through 'Event distance length' and only keep races that are a set distance (either km or M). All races that are based on time eg.12h races, 6h races and 24 hr, races will not be included. Only races with a set distance. All athletes with no age category privded will have their rows removed.
+-- D) take off the gender in 'Athlete age category' bc not needed in this analysis. I just want a raw age of each athlete.
 --Just looking at dataset
 SELECT *
   FROM [ultraDB].[dbo].[TWO_CENTURIES_OF_UM_RACES]
@@ -104,3 +104,30 @@ WHERE RIGHT([Event distance length], 1) != 'h';
 --The code above is just temporary to see if it does what I expect it to do. It does so now we will do this permanently to the dataset except we need to reverse the != 'h' because it will delete eveything that does not equal 'h' so instead we will delete evrything equal to 'h' by replacing != with =
 DELETE FROM [ultraDB].[dbo].[TWO_CENTURIES_OF_UM_RACES]
 WHERE RIGHT([Event distance length], 1) = 'h';
+
+--below we will select all rows with 'Athlete age category" with an actual value. This way we will remove all rows with race distance measured in hours
+SELECT *
+FROM [ultraDB].[dbo].[TWO_CENTURIES_OF_UM_RACES]
+WHERE [Athlete age category] = '';
+
+--The code above is just temporary to see if it does what I expect it to do. It does so now we will do this permanently to the dataset
+DELETE FROM [ultraDB].[dbo].[TWO_CENTURIES_OF_UM_RACES]
+WHERE [Athlete age category] = '';
+
+--**********************************************************************[STEP 6]**********************************************************************
+--remove the gender tag in front of the ages
+--below is temporary look for testing
+SELECT 
+    CASE 
+        WHEN [Athlete age category] LIKE 'M%' OR [Athlete age category] LIKE 'W%' OR [Athlete age category] LIKE 'U%' THEN SUBSTRING([Athlete age category], 2, LEN([Athlete age category]) - 1)
+        ELSE [Athlete age category]
+    END AS Athlete_age_category_without_prefix
+FROM [ultraDB].[dbo].[TWO_CENTURIES_OF_UM_RACES];
+
+--above looks good so lets finalize it on the dataset
+UPDATE [ultraDB].[dbo].[TWO_CENTURIES_OF_UM_RACES]
+SET [Athlete age category] = 
+    CASE 
+        WHEN [Athlete age category] LIKE 'M%' OR [Athlete age category] LIKE 'W%' OR [Athlete age category] LIKE 'U%' THEN SUBSTRING([Athlete age category], 2, LEN([Athlete age category]) - 1)
+        ELSE [Athlete age category]
+    END;
